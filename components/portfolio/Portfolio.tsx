@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 
 import {
   MotionConfig,
   motion,
+  useInView,
   useMotionValueEvent,
   useReducedMotion,
   useScroll,
@@ -33,6 +34,7 @@ import {
 import { DATA, type Party } from "@/data/profile";
 import BlurText from "@/components/react-bits/BlurText";
 import BorderGlow from "@/components/react-bits/BorderGlow";
+import Counter from "@/components/react-bits/Counter";
 import CircularText from "@/components/react-bits/CircularText";
 import CountUp from "@/components/react-bits/CountUp";
 import LightRays from "@/components/react-bits/LightRays";
@@ -44,6 +46,7 @@ import ShinyText from "@/components/react-bits/ShinyText";
 import StarBorder from "@/components/react-bits/StarBorder";
 import Stepper, { Step } from "@/components/react-bits/Stepper";
 import Threads from "@/components/react-bits/Threads";
+import TargetCursor from "@/components/react-bits/TargetCursor";
 import TiltedCard from "@/components/react-bits/TiltedCard";
 import Waves from "@/components/react-bits/Waves";
 import { ContactSection } from "./ContactSection";
@@ -140,10 +143,11 @@ function Hero({ coverRef }: { coverRef: RefObject<HTMLElement | null> }) {
           <LightRays
             raysOrigin="top-center"
             raysColor="#3ee27a"
-            raysSpeed={0.9}
-            lightSpread={1.1}
-            rayLength={2}
-            fadeDistance={1.2}
+            raysSpeed={1}
+            lightSpread={1.25}
+            rayLength={2.8}
+            fadeDistance={1.5}
+            saturation={1.2}
             followMouse
             mouseInfluence={0.12}
             noiseAmount={0.06}
@@ -170,18 +174,22 @@ function Hero({ coverRef }: { coverRef: RefObject<HTMLElement | null> }) {
           </Reveal>
           <h1 className="hero-title">
             <BlurText
+              key={desktop ? "letters" : "words"}
               text="Soykat Hasan"
-              delay={110}
+              animateBy={desktop ? "letters" : "words"}
+              delay={desktop ? 45 : 110}
               direction="bottom"
               stepDuration={0.32}
               initialDelay={0.2}
             />{" "}
             <BlurText
+              key={desktop ? "letters-2" : "words-2"}
               text="Sizan."
-              delay={110}
+              animateBy={desktop ? "letters" : "words"}
+              delay={desktop ? 45 : 110}
               direction="bottom"
               stepDuration={0.32}
-              initialDelay={0.42}
+              initialDelay={desktop ? 0.2 + 13 * 0.045 : 0.42}
             />
           </h1>
           <Reveal delay={0.5}>
@@ -199,8 +207,10 @@ function Hero({ coverRef }: { coverRef: RefObject<HTMLElement | null> }) {
                 color="#ffffff"
                 trailColor="#c9ffdc"
                 radius={999}
-                duration={5}
-                glow={0.8}
+                duration={4}
+                trailLength={0.5}
+                glow={1}
+                sparkle
                 backgroundColor="var(--accent)"
                 textColor="var(--accent-ink)"
                 borderColor="rgba(4, 20, 10, 0.18)"
@@ -220,7 +230,7 @@ function Hero({ coverRef }: { coverRef: RefObject<HTMLElement | null> }) {
         >
           <div className="portrait">
             <div className="portrait-orb" aria-hidden="true">
-              <Orb hue={0} hoverIntensity={0.35} rotateOnHover backgroundColor="#0a0d12" />
+              <Orb hue={0} hoverIntensity={0.5} rotateOnHover backgroundColor="#0a0d12" />
             </div>
             <motion.div
               className={`portrait-reveal${revealed ? " is-revealed" : ""}`}
@@ -433,14 +443,54 @@ function Services({ onDiscuss }: { onDiscuss: (service: string) => void }) {
             className="service-grid"
             cards={cards}
             glowColor="62, 226, 122"
-            particleCount={10}
-            spotlightRadius={320}
+            particleCount={16}
+            spotlightRadius={420}
             enableMagnetism
             clickEffect
           />
         </Reveal>
       </div>
     </section>
+  );
+}
+
+// React Bits Counter rolls each digit into place once the figure scrolls into view. Its size
+// follows the parent's computed font size, so the clamp() in the stylesheet still applies.
+function RollingFigure({ value }: { value: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.6 });
+  const [fontSize, setFontSize] = useState(72);
+  useEffect(() => {
+    const parent = ref.current?.parentElement;
+    if (!parent) return;
+    const measure = () => setFontSize(parseFloat(getComputedStyle(parent).fontSize) || 72);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(parent);
+    return () => observer.disconnect();
+  }, []);
+  const decimals = value % 1 === 0 ? 0 : String(value).split(".")[1].length;
+  const whole = String(Math.floor(value)).length;
+  const places: (number | ".")[] = [
+    ...Array.from({ length: whole }, (_, i) => 10 ** (whole - i - 1)),
+    ...(decimals ? (["."] as const) : []),
+    ...Array.from({ length: decimals }, (_, i) => 10 ** -(i + 1)),
+  ];
+  return (
+    <span ref={ref} className="rolling-figure" aria-hidden="true">
+      <Counter
+        value={inView ? value : 0}
+        places={places}
+        fontSize={fontSize}
+        padding={fontSize * 0.08}
+        gap={0}
+        horizontalPadding={0}
+        textColor="inherit"
+        fontWeight="inherit"
+        gradientHeight={0}
+        gradientFrom="transparent"
+      />
+    </span>
   );
 }
 
@@ -457,11 +507,12 @@ function Exprovia() {
             amplitude={1.5}
             distance={0.35}
             lineCount={70}
-            thickness={0.5}
+            thickness={0.85}
+            brightness={1.9}
             speed={0.3}
             angle={-6}
-            opacity={0.5}
-            fade={0.35}
+            opacity={0.7}
+            fade={0.3}
           />
         </div>
         <div className="shell agency-grid">
@@ -495,11 +546,14 @@ function Exprovia() {
                 <div key={stat.label}>
                   <dt>{stat.label}</dt>
                   <dd>
-                    <CountUp to={stat.value} duration={1.6} />
-                    {stat.suffix}
+                    <RollingFigure value={stat.value} />
+                    <span aria-hidden="true">{stat.suffix}</span>
                     {!stat.suffix && (
                       <Star className="rating-star" size={26} aria-hidden="true" />
                     )}
+                    <span className="sr-only">
+                      {stat.suffix ? `${stat.value}${stat.suffix}` : `${stat.value} out of 5`}
+                    </span>
                   </dd>
                 </div>
               ))}
@@ -521,7 +575,7 @@ function Process() {
     <section id="process" className="section process">
       <div className="process-waves" aria-hidden="true">
         <Waves
-          lineColor="rgba(62, 226, 122, 0.2)"
+          lineColor="rgba(62, 226, 122, 0.3)"
           waveSpeedX={0.008}
           waveSpeedY={0.004}
           waveAmpX={28}
@@ -663,6 +717,7 @@ function Faq() {
 }
 
 export default function Portfolio() {
+  const reducedMotion = useReducedMotion();
   const [selectedService, setSelectedService] = useState("");
   const aboutRef = useRef<HTMLElement>(null);
 
@@ -710,6 +765,21 @@ export default function Portfolio() {
         Skip to content
       </a>
       <Noise fixed opacity={0.035} fps={16} contrast={0.5} zIndex={70} />
+      {!reducedMotion && (
+        <TargetCursor
+          targetSelector="a, button, summary, input, select, textarea"
+          cursorColor="#ffffff"
+          cursorColorOnTarget="#3ee27a"
+          spinDuration={4}
+          size={34}
+          cornerSize={11}
+          thickness={2}
+          padding={7}
+          dotSize={5}
+          blendMode="normal"
+          showLabel={false}
+        />
+      )}
       <Header />
       <main id="main-content">
         <div className="hero-stack">

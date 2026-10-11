@@ -1,6 +1,7 @@
 "use client";
 
-// React Bits by David Haz. See ./LICENSE.md. Adapted for semantic headings and reduced motion.
+// React Bits by David Haz. See ./LICENSE.md. Adapted for semantic headings and reduced motion;
+// in letter mode the letters of each word sit in a no-wrap group, so a word never breaks apart.
 import { motion, useReducedMotion, type Transition } from "motion/react";
 import { useEffect, useRef, useState, useMemo } from "react";
 
@@ -114,23 +115,20 @@ const BlurText: React.FC<BlurTextProps> = ({
       style={{ display: "flex", flexWrap: "wrap" }}
     >
       <span className="sr-only">{text}</span>
-      {elements.map((segment, index) => {
+      {(() => {
         const animateKeyframes = buildKeyframes(fromSnapshot, toSnapshots);
-
-        const spanTransition: Transition = {
-          duration: totalDuration,
-          times,
-          delay: initialDelay + (index * delay) / 1000,
-          ease: easing,
-        };
-
-        return (
+        const piece = (segment: string, index: number, gap: boolean) => (
           <motion.span
             key={index}
             aria-hidden="true"
             initial={fromSnapshot}
             animate={inView ? animateKeyframes : fromSnapshot}
-            transition={spanTransition}
+            transition={{
+              duration: totalDuration,
+              times,
+              delay: initialDelay + (index * delay) / 1000,
+              ease: easing,
+            } as Transition}
             onAnimationComplete={
               index === elements.length - 1 ? onAnimationComplete : undefined
             }
@@ -140,10 +138,25 @@ const BlurText: React.FC<BlurTextProps> = ({
             }}
           >
             {segment === " " ? "\u00A0" : segment}
-            {animateBy === "words" && index < elements.length - 1 && "\u00A0"}
+            {gap && "\u00A0"}
           </motion.span>
         );
-      })}
+        if (animateBy === "words")
+          return elements.map((segment, index) =>
+            piece(segment, index, index < elements.length - 1),
+          );
+        let index = 0;
+        return text.split(" ").map((word, wordIndex, words) => (
+          <span
+            key={`word-${wordIndex}`}
+            aria-hidden="true"
+            style={{ display: "inline-flex", whiteSpace: "nowrap" }}
+          >
+            {word.split("").map((letter) => piece(letter, index++, false))}
+            {wordIndex < words.length - 1 && piece(" ", index++, false)}
+          </span>
+        ));
+      })()}
     </span>
   );
 };

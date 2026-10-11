@@ -2,7 +2,8 @@
 
 // React Bits by David Haz (reactbits.dev). See ./LICENSE.md.
 // Adapted: cards are passed in through `cards` instead of hard-coded demo data, effects switch off
-// for reduced motion as well as small screens, and the colours come from CSS variables.
+// for reduced motion as well as small screens, the colours come from CSS variables, and the glow and
+// spotlight are stronger.
 
 import React, { useRef, useEffect, useCallback, useState, type ReactNode } from 'react';
 import { gsap } from 'gsap';
@@ -343,10 +344,10 @@ const GlobalSpotlight: React.FC<{
       border-radius: 50%;
       pointer-events: none;
       background: radial-gradient(circle,
-        rgba(${glowColor}, 0.15) 0%,
-        rgba(${glowColor}, 0.08) 15%,
-        rgba(${glowColor}, 0.04) 25%,
-        rgba(${glowColor}, 0.02) 40%,
+        rgba(${glowColor}, 0.26) 0%,
+        rgba(${glowColor}, 0.14) 15%,
+        rgba(${glowColor}, 0.07) 25%,
+        rgba(${glowColor}, 0.03) 40%,
         rgba(${glowColor}, 0.01) 65%,
         transparent 70%
       );

@@ -137,6 +137,16 @@ try {
     "Exprovia logo did not load",
   );
   assert.equal(await page.locator(".agency-stats > div").count(), 3);
+  assert.deepEqual(await page.locator(".agency-stats dd .sr-only").allInnerTexts(), [
+    "350+",
+    "20+",
+    "4.9 out of 5",
+  ]);
+  assert.equal(
+    await page.locator(".target-cursor").count(),
+    0,
+    "Reduced motion should keep the normal pointer",
+  );
   assert.match(
     await page.locator(".agency-source").innerText(),
     /Source: Abdur Rakib, Strategic Advisor at Exprovia/,
@@ -342,6 +352,53 @@ try {
   assert.notEqual(await cueTransform(), initial);
   assert.equal(await animatedPage.locator(".hero-rays canvas").count(), 1);
   assert.equal(await animatedPage.locator(".portrait-orb canvas").count(), 1);
+
+  // Custom cursor: snaps around a button, and survives slow frames. The original React Bits
+  // springs diverged once frames took more than about 40 ms, throwing the corners off screen.
+  assert.equal(await animatedPage.locator(".target-cursor").count(), 1);
+  const cornerCenter = () =>
+    animatedPage.evaluate(() => {
+      const points = [...document.querySelectorAll(".target-cursor__corner")].map((corner) => {
+        const match = corner.style.transform.match(/translate3d\(([-\d.e+]+)px, ([-\d.e+]+)px/);
+        return match ? [Number(match[1]), Number(match[2])] : [NaN, NaN];
+      });
+      return [0, 1].map((axis) => points.reduce((sum, point) => sum + point[axis], 0) / points.length);
+    });
+  const ghost = animatedPage.locator(".hero-actions .button-ghost");
+  await ghost.hover();
+  await animatedPage.waitForTimeout(700);
+  const ghostBox = await ghost.boundingBox();
+  const locked = await cornerCenter();
+  assert.ok(
+    Math.hypot(
+      locked[0] - (ghostBox.x + ghostBox.width / 2),
+      locked[1] - (ghostBox.y + ghostBox.height / 2),
+    ) < 12,
+    `Cursor corners should snap around the hovered button: ${locked}`,
+  );
+  await animatedPage.mouse.move(300, 300);
+  await animatedPage.waitForTimeout(300);
+  await animatedPage.evaluate(() => {
+    window.__slowFrames = new Promise((resolve) => {
+      const end = performance.now() + 2500;
+      const slow = () => {
+        const start = performance.now();
+        while (performance.now() - start < 70) {}
+        if (performance.now() < end) requestAnimationFrame(slow);
+        else resolve();
+      };
+      requestAnimationFrame(slow);
+    });
+  });
+  for (let i = 0; i < 6; i++)
+    await animatedPage.mouse.move(300 + i * 70, 300 + i * 30, { steps: 2 });
+  await animatedPage.evaluate(() => window.__slowFrames);
+  const afterSlowFrames = await cornerCenter();
+  assert.ok(
+    afterSlowFrames.every(Number.isFinite) &&
+      Math.hypot(afterSlowFrames[0] - 650, afterSlowFrames[1] - 450) < 12,
+    `Cursor corners should stay on the pointer through 70 ms frames: ${afterSlowFrames}`,
+  );
   const headerOffset = () =>
     animatedPage
       .locator(".site-header")

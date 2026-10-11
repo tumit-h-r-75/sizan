@@ -188,10 +188,10 @@ export function ContactSection({
       <div className="contact-particles" aria-hidden="true">
         <Particles
           particleColors={["#3ee27a", "#ffffff", "#8d97a3"]}
-          particleCount={320}
+          particleCount={420}
           particleSpread={10}
           speed={0.08}
-          particleBaseSize={90}
+          particleBaseSize={130}
           sizeRandomness={0.5}
           alphaParticles
         />

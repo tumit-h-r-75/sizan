@@ -105,11 +105,21 @@ STACK
     (as="a", white light, radius 999, background = accent).
   * Noise: a very light moving film grain over the whole page (fixed, opacity ~0.035, 16 fps).
     Start low; it looks too grainy above ~0.05.
-  * CountUp (motion): the company figures (suffix like "+" rendered next to it; a star after the rating)
-    and the Experience "at a glance" figures.
+  * CountUp (motion): the Experience "at a glance" figures.
+  * Counter (motion): the company figures roll into place digit by digit like an odometer when they
+    scroll into view (start at 0, set the real value when in view; size from the parent's computed
+    font size). Screen readers get the plain figure in a visually hidden span ("350+", "4.9 out of 5").
+  * TargetCursor: on desktop (fine pointer) a custom cursor – a dot inside four slowly spinning corner
+    brackets that snap around a, button, summary, input, select and textarea; normal blend mode,
+    accent colour on targets; not rendered for reduced motion or touch. Fix its bug first: its springs
+    take two Euler steps per frame, so frames over ~40 ms make the stiff follow spring diverge and the
+    corners fly off screen; step at most 4 ms at a time and reset a non-finite spring to its goal. Add
+    a test that makes every frame take ~70 ms and reads the corners while frames are still slow.
+    Trade-off to mention: it hides the normal pointer, including the text I-beam over fields.
   * Counter (motion): a rolling HH:MM clock in the Contact time-zone card (aria-hidden, with the
     time in a visually hidden span). Adapt: digits jump for reduced motion.
-  * GradientText: the last line "hello." of the Contact heading (accent → mint → darker green).
+  * GradientText: the last line "hello." of the Contact heading and the section numbers 01–06
+    (accent → mint → darker green, flowing).
   * Stepper: the process steps. Controlled step state; nextButtonText "Next step";
     completeButtonText "Start a conversation"; on final step scroll to #contact; theme it with the page
     palette through its CSS variables; accentColor = accent.

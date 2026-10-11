@@ -12,13 +12,14 @@ import { ArrowUpRight, Menu, X } from "lucide-react";
 import AnimatedContent from "@/components/react-bits/AnimatedContent";
 import BlurText from "@/components/react-bits/BlurText";
 import DecryptedText from "@/components/react-bits/DecryptedText";
+import GradientText from "@/components/react-bits/GradientText";
 import Magnet from "@/components/react-bits/Magnet";
 import { DATA } from "@/data/profile";
 
 export const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(false);
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
   useEffect(() => {
     const media = window.matchMedia(query);
     const update = () => setMatches(media.matches);
@@ -56,8 +57,9 @@ export function Reveal({
   return (
     <AnimatedContent
       className={className}
-      distance={56}
-      duration={1}
+      distance={84}
+      duration={1.1}
+      scale={0.96}
       ease="power3.out"
       threshold={0.12}
       delay={delay}
@@ -102,7 +104,13 @@ export function SectionLabel({
 }) {
   return (
     <p className="section-label">
-      <span className="section-label-number">{number}</span>
+      <GradientText
+        className="section-label-number"
+        colors={["#3ee27a", "#c9ffdc", "#27ad5d"]}
+        animationSpeed={4}
+      >
+        {number}
+      </GradientText>
       <span className="section-label-line" aria-hidden="true" />
       <DecryptedText
         text={children}
@@ -264,9 +272,13 @@ export function Header() {
           ))}
         </nav>
         <div className="header-actions">
-          <a className="button button-light button-small header-cta" href="#contact">
-            Let's talk <ArrowUpRight size={15} aria-hidden="true" />
-          </a>
+          <span className="header-cta">
+            <Magnetic>
+              <a className="button button-light button-small" href="#contact">
+                Let's talk <ArrowUpRight size={15} aria-hidden="true" />
+              </a>
+            </Magnetic>
+          </span>
           <button
             ref={toggleRef}
             className="menu-toggle"

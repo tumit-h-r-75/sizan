@@ -34,8 +34,8 @@
   padding: 6px;
   background: radial-gradient(
     var(--glow-radius) circle at var(--glow-x) var(--glow-y),
-    rgba(var(--glow-color), calc(var(--glow-intensity) * 0.8)) 0%,
-    rgba(var(--glow-color), calc(var(--glow-intensity) * 0.4)) 30%,
+    rgba(var(--glow-color), var(--glow-intensity)) 0%,
+    rgba(var(--glow-color), calc(var(--glow-intensity) * 0.65)) 30%,
     transparent 60%
   );
   border-radius: inherit;
@@ -56,7 +56,7 @@
 .magic-bento-card--border-glow:hover {
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.4),
-    0 0 30px rgba(var(--glow-color), 0.12);
+    0 0 50px rgba(var(--glow-color), 0.28);
 }
 
 .particle-container {
