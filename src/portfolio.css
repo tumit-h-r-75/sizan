@@ -1282,7 +1282,7 @@ a:hover > .link-arrow {
   font-size: 15px;
   font-weight: 500;
 }
-.agency-split span {
+.agency-split div span {
   display: block;
   font-size: 14px;
   color: var(--muted);
