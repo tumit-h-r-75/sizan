@@ -7,7 +7,6 @@ import {
   ArrowDownRight,
   ArrowUp,
   ArrowUpRight,
-  ChevronDown,
   Cloud,
   Code2,
   Cpu,
@@ -15,22 +14,25 @@ import {
   Globe2,
   GraduationCap,
   Handshake,
-  MapPin,
   MessagesSquare,
   Route,
+  Sparkles,
   Star,
   Users,
 } from "lucide-react";
 import { DATA } from "@/data/profile";
 import BlurText from "@/components/react-bits/BlurText";
+import CircularText from "@/components/react-bits/CircularText";
 import CountUp from "@/components/react-bits/CountUp";
+import DotGrid from "@/components/react-bits/DotGrid";
 import LightRays from "@/components/react-bits/LightRays";
+import MagicBento from "@/components/react-bits/MagicBento";
 import ScrollReveal from "@/components/react-bits/ScrollReveal";
 import ShinyText from "@/components/react-bits/ShinyText";
-import SpotlightCard from "@/components/react-bits/SpotlightCard";
 import Stepper, { Step } from "@/components/react-bits/Stepper";
 import TiltedCard from "@/components/react-bits/TiltedCard";
 import { ContactSection } from "./ContactSection";
+import { Experience } from "./Experience";
 import {
   ExternalLink,
   Header,
@@ -144,6 +146,17 @@ function Hero() {
               showMobileWarning={false}
               showTooltip={false}
             />
+            <a className="portrait-badge" href="#contact" aria-label="Let's talk">
+              <CircularText
+                text="LET'S TALK • START A PROJECT • "
+                spinDuration={22}
+                onHover="speedUp"
+                className="portrait-badge-text"
+              />
+              <span className="portrait-badge-core" aria-hidden="true">
+                <ArrowUpRight size={20} strokeWidth={1.8} />
+              </span>
+            </a>
           </div>
         </Reveal>
       </div>
@@ -233,6 +246,72 @@ function About() {
 }
 
 function Services({ onDiscuss }: { onDiscuss: (service: string) => void }) {
+  const cards = [
+    ...DATA.services.map((service, index) => {
+      const Icon = serviceIcons[service.icon];
+      return {
+        key: service.title,
+        className: "service-card",
+        children: (
+          <>
+            <div className="service-top">
+              <span className="service-icon" aria-hidden="true">
+                <Icon size={20} strokeWidth={1.5} />
+              </span>
+              <span className="service-number">0{index + 1}</span>
+            </div>
+            <h3>{service.title}</h3>
+            <p>{service.text}</p>
+            <div className="service-tags">
+              {service.tags.map((tag) => (
+                <span key={tag}>{tag}</span>
+              ))}
+            </div>
+            <button
+              className="service-cta"
+              type="button"
+              onClick={() => onDiscuss(service.title)}
+              aria-label={`Discuss ${service.title}`}
+            >
+              Let's talk
+              <span className="service-cta-icon" aria-hidden="true">
+                <ArrowUpRight size={17} strokeWidth={1.7} />
+              </span>
+            </button>
+          </>
+        ),
+      };
+    }),
+    {
+      key: "start",
+      className: "service-card service-card-start",
+      children: (
+        <>
+          <div className="service-top">
+            <span className="service-icon" aria-hidden="true">
+              <Sparkles size={20} strokeWidth={1.5} />
+            </span>
+          </div>
+          <h3>Not sure where to start?</h3>
+          <p>
+            Tell me the business goal. I'll help you find the right route and
+            the right team to build it.
+          </p>
+          <button
+            className="service-cta"
+            type="button"
+            onClick={() => onDiscuss("")}
+          >
+            Start with a conversation
+            <span className="service-cta-icon" aria-hidden="true">
+              <ArrowUpRight size={17} strokeWidth={1.7} />
+            </span>
+          </button>
+        </>
+      ),
+    },
+  ];
+
   return (
     <section id="services" className="section services">
       <div className="shell">
@@ -246,137 +325,17 @@ function Services({ onDiscuss }: { onDiscuss: (service: string) => void }) {
             </p>
           </Reveal>
         </div>
-        <ul className="service-grid">
-          {DATA.services.map((service, index) => {
-            const Icon = serviceIcons[service.icon];
-            return (
-              <li key={service.title} className="service-item">
-                <Reveal className="service-reveal" delay={(index % 3) * 0.08}>
-                  <SpotlightCard
-                    className="service-card"
-                    spotlightColor="#3ee27a"
-                    intensity={0.1}
-                    borderGlow={0.55}
-                    spotlightSize={340}
-                    style={
-                      {
-                        "--spotlight-card-surface": "var(--surface)",
-                        "--spotlight-card-border": "var(--line)",
-                      } as CSSProperties
-                    }
-                  >
-                    <div className="service-top">
-                      <span className="service-icon" aria-hidden="true">
-                        <Icon size={20} strokeWidth={1.5} />
-                      </span>
-                      <span className="service-number">0{index + 1}</span>
-                    </div>
-                    <h3>{service.title}</h3>
-                    <p>{service.text}</p>
-                    <div className="service-tags">
-                      {service.tags.map((tag) => (
-                        <span key={tag}>{tag}</span>
-                      ))}
-                    </div>
-                    <button
-                      className="service-cta"
-                      type="button"
-                      onClick={() => onDiscuss(service.title)}
-                      aria-label={`Discuss ${service.title}`}
-                    >
-                      Let's talk
-                      <span className="service-cta-icon" aria-hidden="true">
-                        <ArrowUpRight size={17} strokeWidth={1.7} />
-                      </span>
-                    </button>
-                  </SpotlightCard>
-                </Reveal>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </section>
-  );
-}
-
-function Experience() {
-  return (
-    <section id="experience" className="section experience">
-      <div className="shell">
-        <SectionLabel number="03">Experience</SectionLabel>
-        <div className="experience-grid">
-          <div className="experience-intro">
-            <SplitHeading lead="Different chapters." dim="One human thread." />
-            <Reveal delay={0.1}>
-              <p>
-                From community work to client relationships. Each role has
-                shaped how I listen, communicate, and approach a business
-                challenge.
-              </p>
-            </Reveal>
-          </div>
-          <div className="timeline">
-            <span className="timeline-rail" aria-hidden="true" />
-            {DATA.experience.map((entry, index) => (
-              <Reveal key={entry.company} delay={index * 0.06}>
-                <details
-                  className="experience-entry"
-                  open={index === 0 ? true : undefined}
-                >
-                  <summary>
-                    <span
-                      className={`timeline-dot${index === 0 ? " current" : ""}`}
-                      aria-hidden="true"
-                    />
-                    <div>
-                      <div className="experience-company-row">
-                        <h3>{entry.company}</h3>
-                        {index === 0 && (
-                          <span className="current-badge">
-                            <span className="pulse-dot" aria-hidden="true" />
-                            Current
-                          </span>
-                        )}
-                      </div>
-                      <span className="experience-role-title">
-                        {entry.roles[0].title}
-                      </span>
-                      <span className="experience-meta">
-                        {entry.roles[entry.roles.length - 1].start} –{" "}
-                        {entry.roles[0].end} <span aria-hidden="true">·</span>{" "}
-                        {entry.type}
-                      </span>
-                    </div>
-                    <span className="experience-chevron" aria-hidden="true">
-                      <ChevronDown size={18} strokeWidth={1.6} />
-                    </span>
-                  </summary>
-                  <div className="experience-details">
-                    {entry.roles.map((role) => (
-                      <div className="role-detail" key={role.title}>
-                        <div className="role-heading">
-                          <strong>{role.title}</strong>
-                          <span>
-                            {role.start} – {role.end}
-                          </span>
-                        </div>
-                        {role.description && <p>{role.description}</p>}
-                      </div>
-                    ))}
-                    {entry.location && (
-                      <span className="role-location">
-                        <MapPin size={13} aria-hidden="true" />
-                        {entry.location}
-                        {entry.workplace ? ` · ${entry.workplace}` : ""}
-                      </span>
-                    )}
-                  </div>
-                </details>
-              </Reveal>
-            ))}
-          </div>
-        </div>
+        <Reveal>
+          <MagicBento
+            className="service-grid"
+            cards={cards}
+            glowColor="62, 226, 122"
+            particleCount={10}
+            spotlightRadius={320}
+            enableMagnetism
+            clickEffect
+          />
+        </Reveal>
       </div>
     </section>
   );
@@ -387,6 +346,19 @@ function Exprovia() {
     <section id="exprovia" className="agency">
       <div className="shell">
         <Reveal className="agency-panel">
+          <div className="agency-dots" aria-hidden="true">
+            <DotGrid
+              dotSize={3}
+              gap={20}
+              baseColor="#1f2a36"
+              activeColor="#3ee27a"
+              proximity={130}
+              shockRadius={260}
+              shockStrength={4}
+              glow={0.6}
+              fade={0.5}
+            />
+          </div>
           <div className="agency-copy">
             <span className="eyebrow">The team behind the connection</span>
             <div className="agency-wordmark">

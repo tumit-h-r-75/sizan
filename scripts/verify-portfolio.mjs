@@ -85,12 +85,13 @@ try {
   );
   assert.deepEqual(
     await page.evaluate(() =>
-      [".portrait-glow", ".scroll-cue-line span", ".agency-panel"].map(
-        (selector) =>
-          getComputedStyle(
-            document.querySelector(selector),
-            selector === ".agency-panel" ? "::before" : null,
-          ).animationName,
+      [
+        [".portrait-glow", null],
+        [".scroll-cue-line span", null],
+        [".pulse-dot", "::after"],
+      ].map(
+        ([selector, pseudo]) =>
+          getComputedStyle(document.querySelector(selector), pseudo).animationName,
       ),
     ),
     ["none", "none", "none"],
@@ -102,6 +103,22 @@ try {
     "visible",
   );
   checkpoint("portrait loads and reduced motion shows content without looping animation");
+
+  const roleCount = await page.evaluate(
+    () => document.querySelectorAll(".career-row .role-detail").length,
+  );
+  assert.equal(await page.locator(".career-bar").count(), roleCount);
+  assert.match(
+    await page.locator(".career-row").filter({ hasText: "Kiki Charity" }).locator("summary").innerText(),
+    /Feb 2021 – Dec 2022 · 1 yr 11 mo/,
+  );
+  assert.equal(await page.locator("#exprovia .dot-grid canvas").count(), 1);
+  assert.equal(
+    await page.locator(".portrait-badge").getAttribute("href"),
+    "#contact",
+  );
+  assert.equal(await page.locator(".service-grid .magic-bento-card").count(), 6);
+  checkpoint("career chart, durations, company dot grid, badge, and service bento");
 
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(100);
