@@ -17,11 +17,8 @@ import GlareHover from "@/components/react-bits/GlareHover";
 import GradientText from "@/components/react-bits/GradientText";
 import Particles from "@/components/react-bits/Particles";
 import StarBorder from "@/components/react-bits/StarBorder";
-import { ExternalLink, Reveal, SectionLabel } from "./Chrome";
+import { ExternalLink, Reveal, SectionLabel, whatsappUrl } from "./Chrome";
 
-const whatsappNumber = DATA.whatsapp.replace(/\D/g, "");
-const whatsappUrl = (text?: string) =>
-  `https://wa.me/${whatsappNumber}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
 
 const channels = [
   {
@@ -191,7 +188,7 @@ export function ContactSection({
       <div className="contact-particles" aria-hidden="true">
         <Particles
           particleColors={["#3ee27a", "#ffffff", "#8d97a3"]}
-          particleCount={260}
+          particleCount={320}
           particleSpread={10}
           speed={0.08}
           particleBaseSize={90}
@@ -200,7 +197,7 @@ export function ContactSection({
         />
       </div>
       <div className="shell">
-        <SectionLabel number="05">Contact</SectionLabel>
+        <SectionLabel number="06">Contact</SectionLabel>
         <div className="contact-grid">
           <div className="contact-intro">
             <h2 className="contact-title">

@@ -8,6 +8,8 @@ These components come from [React Bits](https://reactbits.dev/) by David Haz, do
 | StarBorder | Light travelling around the "Let's discuss your project" and "Prepare my project brief" buttons | None |
 | Noise | Very light moving film grain over the whole page | None |
 | TiltedCard | Hero portrait | No tilt for reduced motion |
+| Orb | Glowing ring behind the hero portrait | Page greens as base colours; listens on the window; turns slowly on its own; DPR 1.5; pauses off screen; still for reduced motion |
+| BorderGlow | "Ask me something else" card in the FAQ | None |
 | CircularText | Spinning "Let's talk" badge on the portrait | No spin for reduced motion; letters hidden from screen readers (the link has a label) |
 | BlurText | Hero name and section headings | Span wrapper for headings, readable text alternative, reduced motion, `initialDelay` |
 | ShinyText | Hero role pill | None |

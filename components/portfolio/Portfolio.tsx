@@ -21,7 +21,9 @@ import {
   Globe2,
   GraduationCap,
   Handshake,
+  MessageCircle,
   MessagesSquare,
+  Plus,
   Route,
   Sparkles,
   Star,
@@ -30,11 +32,13 @@ import {
 } from "lucide-react";
 import { DATA, type Party } from "@/data/profile";
 import BlurText from "@/components/react-bits/BlurText";
+import BorderGlow from "@/components/react-bits/BorderGlow";
 import CircularText from "@/components/react-bits/CircularText";
 import CountUp from "@/components/react-bits/CountUp";
 import LightRays from "@/components/react-bits/LightRays";
 import MagicBento from "@/components/react-bits/MagicBento";
 import Noise from "@/components/react-bits/Noise";
+import Orb from "@/components/react-bits/Orb";
 import ScrollReveal from "@/components/react-bits/ScrollReveal";
 import ShinyText from "@/components/react-bits/ShinyText";
 import StarBorder from "@/components/react-bits/StarBorder";
@@ -53,6 +57,7 @@ import {
   SectionLabel,
   SplitHeading,
   useMediaQuery,
+  whatsappUrl,
 } from "./Chrome";
 
 const serviceIcons = { Code2, Database, Globe: Globe2, Cloud, Cpu };
@@ -135,12 +140,12 @@ function Hero({ coverRef }: { coverRef: RefObject<HTMLElement | null> }) {
           <LightRays
             raysOrigin="top-center"
             raysColor="#3ee27a"
-            raysSpeed={0.7}
-            lightSpread={0.9}
-            rayLength={1.5}
-            fadeDistance={1.1}
+            raysSpeed={0.9}
+            lightSpread={1.1}
+            rayLength={2}
+            fadeDistance={1.2}
             followMouse
-            mouseInfluence={0.08}
+            mouseInfluence={0.12}
             noiseAmount={0.06}
             distortion={0.04}
           />
@@ -214,7 +219,9 @@ function Hero({ coverRef }: { coverRef: RefObject<HTMLElement | null> }) {
           style={layered ? { y: visualY, scale: visualScale } : undefined}
         >
           <div className="portrait">
-            <span className="portrait-glow" aria-hidden="true" />
+            <div className="portrait-orb" aria-hidden="true">
+              <Orb hue={0} hoverIntensity={0.35} rotateOnHover backgroundColor="#0a0d12" />
+            </div>
             <motion.div
               className={`portrait-reveal${revealed ? " is-revealed" : ""}`}
               initial={
@@ -451,10 +458,10 @@ function Exprovia() {
             distance={0.35}
             lineCount={70}
             thickness={0.5}
-            speed={0.25}
+            speed={0.3}
             angle={-6}
-            opacity={0.35}
-            fade={0.4}
+            opacity={0.5}
+            fade={0.35}
           />
         </div>
         <div className="shell agency-grid">
@@ -514,7 +521,7 @@ function Process() {
     <section id="process" className="section process">
       <div className="process-waves" aria-hidden="true">
         <Waves
-          lineColor="rgba(62, 226, 122, 0.12)"
+          lineColor="rgba(62, 226, 122, 0.2)"
           waveSpeedX={0.008}
           waveSpeedY={0.004}
           waveAmpX={28}
@@ -587,6 +594,74 @@ function Process() {
   );
 }
 
+// Native <details> sharing a name, so opening one question closes the others.
+function Faq() {
+  return (
+    <section id="faq" className="section faq" aria-labelledby="faq-heading">
+      <div className="shell">
+        <SectionLabel number="05">FAQ</SectionLabel>
+        <div className="faq-grid">
+          <div className="faq-intro">
+            <SplitHeading id="faq-heading" lead="Questions," dim="answered." />
+            <Reveal delay={0.1}>
+              <p>The things people usually ask before a first call.</p>
+              <BorderGlow
+                className="faq-ask"
+                backgroundColor="#11161e"
+                glowColor="142 72 56"
+                colors={["#3ee27a", "#8df5b4", "#27ad5d"]}
+                borderRadius={20}
+                glowRadius={30}
+                edgeSensitivity={25}
+              >
+                <a
+                  className="faq-ask-link"
+                  href={whatsappUrl(`Hi ${DATA.alternateName}, I have a question: `)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={DATA.avatarThumbUrl} alt="" width={44} height={44} />
+                  <span>
+                    <small>Didn't find your question?</small>
+                    <strong>Ask me something else</strong>
+                  </span>
+                  <span className="faq-ask-icon" aria-hidden="true">
+                    <MessageCircle size={18} strokeWidth={1.7} />
+                  </span>
+                  <span className="sr-only"> on WhatsApp (opens in a new tab)</span>
+                </a>
+              </BorderGlow>
+            </Reveal>
+          </div>
+          <div className="faq-list">
+            {DATA.faq.map((item, index) => (
+              <Reveal key={item.question} delay={index * 0.06}>
+                <details className="faq-item" name="faq" open={index === 0 ? true : undefined}>
+                  <summary>
+                    <span className="faq-number">0{index + 1}</span>
+                    <span className="faq-question">{item.question}</span>
+                    <span className="faq-toggle" aria-hidden="true">
+                      <Plus size={18} strokeWidth={1.8} />
+                    </span>
+                  </summary>
+                  <div className="faq-answer">
+                    <p>{item.answer}</p>
+                    {item.link && (
+                      <a className="text-link" href={item.link.href}>
+                        {item.link.label} <ArrowUpRight size={15} aria-hidden="true" />
+                      </a>
+                    )}
+                  </div>
+                </details>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Portfolio() {
   const [selectedService, setSelectedService] = useState("");
   const aboutRef = useRef<HTMLElement>(null);
@@ -601,6 +676,16 @@ export default function Portfolio() {
   const discuss = (service: string) => {
     setSelectedService(service);
     scrollToContact();
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: DATA.faq.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
   };
 
   const personSchema = {
@@ -635,6 +720,7 @@ export default function Portfolio() {
         <Experience />
         <Exprovia />
         <Process />
+        <Faq />
         <ContactSection
           service={selectedService}
           onServiceChange={setSelectedService}
@@ -663,6 +749,12 @@ export default function Portfolio() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(personSchema).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c"),
         }}
       />
     </MotionConfig>

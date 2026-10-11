@@ -34,8 +34,14 @@ export const NAV_ITEMS = [
   { id: "services", label: "Services" },
   { id: "experience", label: "Experience" },
   { id: "process", label: "Process" },
+  { id: "faq", label: "FAQ" },
   { id: "contact", label: "Contact" },
 ];
+
+const whatsappNumber = DATA.whatsapp.replace(/\D/g, "");
+
+export const whatsappUrl = (text?: string) =>
+  `https://wa.me/${whatsappNumber}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
 
 // The page's standard scroll entrance, using React Bits AnimatedContent.
 export function Reveal({
@@ -50,8 +56,8 @@ export function Reveal({
   return (
     <AnimatedContent
       className={className}
-      distance={36}
-      duration={0.9}
+      distance={56}
+      duration={1}
       ease="power3.out"
       threshold={0.12}
       delay={delay}

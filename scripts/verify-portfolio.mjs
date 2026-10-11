@@ -59,6 +59,7 @@ try {
     "exprovia",
     "process",
     "education",
+    "faq",
     "contact",
   ]) {
     assert.equal(await page.locator(`#${id}`).count(), 1);
@@ -86,7 +87,7 @@ try {
   assert.deepEqual(
     await page.evaluate(() =>
       [
-        [".portrait-glow", null],
+        [".portrait-orb", null],
         [".scroll-cue-line span", null],
         [".pulse-dot", "::after"],
       ].map(
@@ -250,7 +251,32 @@ try {
       .getAttribute("href"),
     "https://wa.me/8801320574316",
   );
-  checkpoint("career disclosure, process stepper, and contact channels");
+  const faqItems = page.locator(".faq-item");
+  assert.equal(await faqItems.count(), 5);
+  assert.equal(await faqItems.nth(0).evaluate((element) => element.open), true);
+  await faqItems.nth(1).locator("summary").click();
+  assert.equal(await faqItems.nth(1).evaluate((element) => element.open), true);
+  assert.equal(
+    await faqItems.nth(0).evaluate((element) => element.open),
+    false,
+    "Opening one FAQ answer should close the others",
+  );
+  assert.match(await faqItems.nth(1).innerText(), /Exprovia's engineering team/);
+  assert.ok(
+    (await page.locator(".faq-ask-link").getAttribute("href")).startsWith(
+      "https://wa.me/8801320574316?text=",
+    ),
+  );
+  assert.equal(
+    await page.evaluate(
+      () =>
+        [...document.querySelectorAll('script[type="application/ld+json"]')]
+          .map((script) => JSON.parse(script.textContent))
+          .find((data) => data["@type"] === "FAQPage")?.mainEntity.length,
+    ),
+    5,
+  );
+  checkpoint("career disclosure, process stepper, FAQ, and contact channels");
 
   for (const width of [1440, 1280, 1024, 800, 768, 600, 390, 360, 320])
     await assertFits(width);
@@ -315,6 +341,7 @@ try {
   await animatedPage.waitForTimeout(300);
   assert.notEqual(await cueTransform(), initial);
   assert.equal(await animatedPage.locator(".hero-rays canvas").count(), 1);
+  assert.equal(await animatedPage.locator(".portrait-orb canvas").count(), 1);
   const headerOffset = () =>
     animatedPage
       .locator(".site-header")

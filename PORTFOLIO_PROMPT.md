@@ -75,6 +75,12 @@ STACK
   * LightRays (ogl): hero background. raysOrigin "top-center", raysColor = accent, raysSpeed 0.7,
     lightSpread 0.9, rayLength 1.5, fadeDistance 1.1, followMouse, mouseInfluence 0.08,
     noiseAmount 0.06, distortion 0.04. Wrapper absolutely positioned behind the hero, opacity 0.75.
+  * Orb (ogl): a glowing ring behind the hero portrait (wrapper inset -24%, slow breathing scale).
+    Adapt: replace its purple/cyan base colours with the page greens in the shader (its hue prop
+    does not land on green), listen for the pointer on the window, rotate slowly on its own, cap DPR,
+    pause off screen, still for reduced motion. Give the portrait isolation: isolate.
+  * BorderGlow: the "Ask me something else" card in the FAQ (glow in the accent colour). Its outer
+    glow reaches 30px past the card, so clip the FAQ section with overflow-x: clip on phones.
   * TiltedCard (motion): hero portrait. 100% width/height inside a square wrapper (max 470px),
     scaleOnHover 1.04, rotateAmplitude 9, showMobileWarning false, showTooltip false, 28px radius.
   * CircularText (motion): a round spinning "LET'S TALK • START A PROJECT •" badge on the portrait's
@@ -196,7 +202,16 @@ PAGE STRUCTURE (section ids in brackets)
    the 4 steps (content: icon, "Step N of 4" – plus the step name on phones, where the Stepper hides
    it –, the sentence, and a "Who's involved" row of chips: You, the person with their avatar, the
    company team; store this per step in the data as involved: ["you", "me", "team"]).
-8. Contact [contact] (label 05): a rounded card (inset from the page edges) with Particles behind; heading "Big things start / with a simple /
+8. FAQ [faq] (label 05): sticky intro on the left ("Questions, / answered." + "The things people
+   usually ask before a first call." + a BorderGlow card with the avatar, "Didn't find your
+   question?" / "Ask me something else", opening WhatsApp with "Hi <name>, I have a question: ");
+   on the right five native <details> sharing name="faq" (only one open, the first open by default),
+   each with a number, the question, a + toggle that turns into a green × when open, and an answer
+   with an optional in-page link. Questions: Do I need a finished idea before we talk? / Who actually
+   builds the project? / Will I see a scope and cost before anything starts? / I'm outside <country>.
+   Can we still work together? / What is the quickest way to start? Answers use only facts from the
+   data. Add FAQPage JSON-LD.
+9. Contact [contact] (label 06): a rounded card (inset from the page edges) with Particles behind; heading "Big things start / with a simple /
    hello." (last line in GradientText); one sentence; two GlareHover cards (WhatsApp with the number
    linking to https://wa.me/<digits>, LinkedIn); a time-zone card: "Local time in <location>", the
    UTC offset, a rolling Counter clock, and "Your time: <visitor's time>. <City> is N hours ahead of /
@@ -207,7 +222,7 @@ PAGE STRUCTURE (section ids in brackets)
    actions: "Send on WhatsApp" (wa.me link with ?text=<encoded brief>), "Copy project brief"
    (clipboard, with a status message in role="status"), "Open <name>'s LinkedIn". Escape and backdrop
    click close it and return focus to the submit button. Nothing is sent or stored by the site itself.
-9. Footer: one row – brand, © year + short name, Facebook and Instagram, "Back to top".
+10. Footer: one row – brand, © year + short name, Facebook and Instagram, "Back to top".
 
 PHOTO
 - Convert the photo to WebP with a headless browser canvas: 800px (hero) and 160px (avatar), quality

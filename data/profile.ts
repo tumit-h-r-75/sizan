@@ -34,6 +34,12 @@ export interface EngagementStep {
   involved: Party[];
 }
 
+export interface FaqItem {
+  question: string;
+  answer: string;
+  link?: { label: string; href: string };
+}
+
 export interface EducationItem {
   institution: string;
   degree: string;
@@ -67,6 +73,7 @@ export interface ProfileData {
     source: { label: string; url: string };
   };
   engagementSteps: EngagementStep[];
+  faq: FaqItem[];
   education: EducationItem[];
   organizations: OrganizationItem[];
   whatsapp: string;
@@ -223,6 +230,37 @@ export const DATA: ProfileData = {
       step: "Ongoing contact",
       text: "I stay your point of contact through delivery.",
       involved: ["you", "me", "team"],
+    },
+  ],
+  faq: [
+    {
+      question: "Do I need a finished idea before we talk?",
+      answer:
+        "No. Bring the business goal, even if the idea is still taking shape. The first call is about understanding what you want to achieve, and the brief takes shape from there.",
+      link: { label: "See how a project starts", href: "#process" },
+    },
+    {
+      question: "Who actually builds the project?",
+      answer:
+        "Exprovia's engineering team builds and runs it. I stay on the business side: your requirements, the scope, and keeping the team up to date on what your project needs.",
+      link: { label: "Meet the team behind it", href: "#exprovia" },
+    },
+    {
+      question: "Will I see a scope and cost before anything starts?",
+      answer:
+        "Yes. After the discovery call you get a written scope and estimate, and you decide whether to go ahead once you have reviewed it.",
+    },
+    {
+      question: "I'm outside Bangladesh. Can we still work together?",
+      answer:
+        "Yes. Exprovia builds and runs software for clients worldwide. I'm in Rajshahi, and the contact section shows the time difference for you.",
+      link: { label: "Check the time difference", href: "#contact" },
+    },
+    {
+      question: "What is the quickest way to start?",
+      answer:
+        "Message me on WhatsApp, or fill in the short project brief. It prepares a message with your details that you can send on WhatsApp in one tap.",
+      link: { label: "Write your brief", href: "#contact" },
     },
   ],
   education: [
