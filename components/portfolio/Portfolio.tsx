@@ -1,7 +1,14 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
-import { MotionConfig } from "motion/react";
+import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
+import {
+  MotionConfig,
+  motion,
+  useMotionValueEvent,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "motion/react";
 import {
   ArrowDown,
   ArrowDownRight,
@@ -24,22 +31,27 @@ import { DATA } from "@/data/profile";
 import BlurText from "@/components/react-bits/BlurText";
 import CircularText from "@/components/react-bits/CircularText";
 import CountUp from "@/components/react-bits/CountUp";
-import DotGrid from "@/components/react-bits/DotGrid";
 import LightRays from "@/components/react-bits/LightRays";
 import MagicBento from "@/components/react-bits/MagicBento";
+import Noise from "@/components/react-bits/Noise";
 import ScrollReveal from "@/components/react-bits/ScrollReveal";
 import ShinyText from "@/components/react-bits/ShinyText";
+import StarBorder from "@/components/react-bits/StarBorder";
 import Stepper, { Step } from "@/components/react-bits/Stepper";
+import Threads from "@/components/react-bits/Threads";
 import TiltedCard from "@/components/react-bits/TiltedCard";
+import Waves from "@/components/react-bits/Waves";
 import { ContactSection } from "./ContactSection";
 import { Experience } from "./Experience";
 import {
+  EASE,
   ExternalLink,
   Header,
   Magnetic,
   Reveal,
   SectionLabel,
   SplitHeading,
+  useMediaQuery,
 } from "./Chrome";
 
 const serviceIcons = { Code2, Database, Globe: Globe2, Cloud, Cpu };
@@ -66,25 +78,70 @@ function scrollToContact() {
   window.history.replaceState(null, "", "#contact");
 }
 
-function Hero() {
+// On desktop the hero stays pinned while the About card slides over it: the copy fades and
+// lifts, the portrait drifts, and a shade darkens the hero behind the card.
+function Hero({ coverRef }: { coverRef: RefObject<HTMLElement | null> }) {
+  const heroRef = useRef<HTMLElement>(null);
+  const reducedMotion = useReducedMotion();
+  const desktop = useMediaQuery("(min-width: 901px)");
+  const layered = desktop && !reducedMotion;
+  const [revealed, setRevealed] = useState(false);
+  const [raysOn, setRaysOn] = useState(true);
+  const { scrollYProgress } = useScroll({
+    target: coverRef,
+    offset: ["start end", "start start"],
+  });
+  const copyOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const copyY = useTransform(scrollYProgress, [0, 1], [0, -90]);
+  const visualY = useTransform(scrollYProgress, [0, 1], [0, -40]);
+  const visualScale = useTransform(scrollYProgress, [0, 1], [1, 0.94]);
+  const shade = useTransform(scrollYProgress, [0, 1], [0, 0.75]);
+
+  // Stop the light rays once the card covers the hero.
+  useMotionValueEvent(scrollYProgress, "change", (latest) => setRaysOn(latest < 0.98));
+
+  // A hero taller than the window sticks where its bottom edge is still visible.
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+    const place = () =>
+      hero.style.setProperty(
+        "--hero-stick",
+        `${Math.min(0, window.innerHeight - hero.offsetHeight)}px`,
+      );
+    place();
+    const observer = new ResizeObserver(place);
+    observer.observe(hero);
+    window.addEventListener("resize", place);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", place);
+    };
+  }, []);
+
   return (
-    <section id="top" className="hero">
+    <section id="top" className="hero" ref={heroRef}>
       <div className="hero-rays" aria-hidden="true">
-        <LightRays
-          raysOrigin="top-center"
-          raysColor="#3ee27a"
-          raysSpeed={0.7}
-          lightSpread={0.9}
-          rayLength={1.5}
-          fadeDistance={1.1}
-          followMouse
-          mouseInfluence={0.08}
-          noiseAmount={0.06}
-          distortion={0.04}
-        />
+        {raysOn && (
+          <LightRays
+            raysOrigin="top-center"
+            raysColor="#3ee27a"
+            raysSpeed={0.7}
+            lightSpread={0.9}
+            rayLength={1.5}
+            fadeDistance={1.1}
+            followMouse
+            mouseInfluence={0.08}
+            noiseAmount={0.06}
+            distortion={0.04}
+          />
+        )}
       </div>
       <div className="shell hero-grid">
-        <div className="hero-copy">
+        <motion.div
+          className="hero-copy"
+          style={layered ? { opacity: copyOpacity, y: copyY } : undefined}
+        >
           <Reveal delay={0.1}>
             <span className="hero-pill">
               <span className="pulse-dot" aria-hidden="true" />
@@ -121,31 +178,58 @@ function Hero() {
           </Reveal>
           <Reveal className="hero-actions" delay={0.6}>
             <Magnetic>
-              <a href="#contact" className="button button-primary">
+              <StarBorder
+                as="a"
+                href="#contact"
+                className="button button-primary"
+                color="#ffffff"
+                trailColor="#c9ffdc"
+                radius={999}
+                duration={5}
+                glow={0.8}
+                backgroundColor="var(--accent)"
+                textColor="var(--accent-ink)"
+                borderColor="rgba(4, 20, 10, 0.18)"
+              >
                 Let's discuss your project{" "}
                 <ArrowUpRight size={18} aria-hidden="true" />
-              </a>
+              </StarBorder>
             </Magnetic>
             <a href="#experience" className="button button-ghost">
               My journey <ArrowDownRight size={18} aria-hidden="true" />
             </a>
           </Reveal>
-        </div>
-        <Reveal className="hero-visual" delay={0.25}>
+        </motion.div>
+        <motion.div
+          className="hero-visual"
+          style={layered ? { y: visualY, scale: visualScale } : undefined}
+        >
           <div className="portrait">
             <span className="portrait-glow" aria-hidden="true" />
-            <TiltedCard
-              imageSrc={DATA.avatarUrl}
-              altText={`${DATA.name}, ${DATA.role} at ${DATA.company}`}
-              containerHeight="100%"
-              containerWidth="100%"
-              imageHeight="100%"
-              imageWidth="100%"
-              scaleOnHover={1.04}
-              rotateAmplitude={9}
-              showMobileWarning={false}
-              showTooltip={false}
-            />
+            <motion.div
+              className={`portrait-reveal${revealed ? " is-revealed" : ""}`}
+              initial={
+                reducedMotion
+                  ? false
+                  : { clipPath: "inset(100% 0% 0% 0% round 28px)", scale: 1.12 }
+              }
+              animate={{ clipPath: "inset(0% 0% 0% 0% round 28px)", scale: 1 }}
+              transition={{ duration: 1.4, ease: EASE, delay: 0.3 }}
+              onAnimationComplete={() => setRevealed(true)}
+            >
+              <TiltedCard
+                imageSrc={DATA.avatarUrl}
+                altText={`${DATA.name}, ${DATA.role} at ${DATA.company}`}
+                containerHeight="100%"
+                containerWidth="100%"
+                imageHeight="100%"
+                imageWidth="100%"
+                scaleOnHover={1.04}
+                rotateAmplitude={9}
+                showMobileWarning={false}
+                showTooltip={false}
+              />
+            </motion.div>
             <a className="portrait-badge" href="#contact" aria-label="Let's talk">
               <CircularText
                 text="LET'S TALK • START A PROJECT • "
@@ -158,7 +242,7 @@ function Hero() {
               </span>
             </a>
           </div>
-        </Reveal>
+        </motion.div>
       </div>
       <div className="shell hero-foot">
         <a className="scroll-cue" href="#about">
@@ -169,13 +253,16 @@ function Hero() {
           <ArrowDown size={14} aria-hidden="true" />
         </a>
       </div>
+      {layered && (
+        <motion.div className="hero-shade" style={{ opacity: shade }} aria-hidden="true" />
+      )}
     </section>
   );
 }
 
-function About() {
+function About({ sectionRef }: { sectionRef: RefObject<HTMLElement | null> }) {
   return (
-    <section id="about" className="section about">
+    <section id="about" className="section about" ref={sectionRef}>
       <div className="shell">
         <SectionLabel number="01">About</SectionLabel>
         <ScrollReveal
@@ -346,16 +433,16 @@ function Exprovia() {
     <section id="exprovia" className="agency">
       <div className="shell">
         <Reveal className="agency-panel">
-          <div className="agency-dots" aria-hidden="true">
-            <DotGrid
-              dotSize={3}
-              gap={20}
-              baseColor="#1f2a36"
-              activeColor="#3ee27a"
-              proximity={130}
-              shockRadius={260}
-              shockStrength={4}
-              glow={0.6}
+          <div className="agency-threads" aria-hidden="true">
+            <Threads
+              color="#3ee27a"
+              accentColor="#8df5b4"
+              amplitude={1.2}
+              distance={0.3}
+              lineCount={60}
+              thickness={0.5}
+              speed={0.25}
+              opacity={0.3}
               fade={0.5}
             />
           </div>
@@ -414,6 +501,18 @@ function Process() {
   const steps = DATA.engagementSteps;
   return (
     <section id="process" className="section process">
+      <div className="process-waves" aria-hidden="true">
+        <Waves
+          lineColor="rgba(62, 226, 122, 0.12)"
+          waveSpeedX={0.008}
+          waveSpeedY={0.004}
+          waveAmpX={28}
+          waveAmpY={14}
+          xGap={14}
+          yGap={36}
+          maxCursorMove={80}
+        />
+      </div>
       <div className="shell">
         <SectionLabel number="04">Process</SectionLabel>
         <div className="section-head">
@@ -465,6 +564,7 @@ function Process() {
 
 export default function Portfolio() {
   const [selectedService, setSelectedService] = useState("");
+  const aboutRef = useRef<HTMLElement>(null);
 
   // The page renders on the client, so a shared #section link needs a nudge.
   useEffect(() => {
@@ -499,10 +599,13 @@ export default function Portfolio() {
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
+      <Noise fixed opacity={0.035} fps={16} contrast={0.5} zIndex={70} />
       <Header />
       <main id="main-content">
-        <Hero />
-        <About />
+        <div className="hero-stack">
+          <Hero coverRef={aboutRef} />
+          <About sectionRef={aboutRef} />
+        </div>
         <Services onDiscuss={discuss} />
         <Experience />
         <Exprovia />

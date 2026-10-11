@@ -21,6 +21,7 @@
   --forest: rgba(1, 78, 56, 0.5);
   --career-now: #27ad5d;
   --career-past: #5d6b84;
+  --terracotta: #e07a5f;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --font: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
@@ -308,6 +309,10 @@ p {
   background: var(--accent);
   color: var(--accent-ink);
 }
+.button.star-border {
+  padding: 0 24px;
+  line-height: 1;
+}
 .button-primary:hover {
   background: var(--accent-hover);
   box-shadow: 0 10px 40px -10px rgba(62, 226, 122, 0.55);
@@ -479,6 +484,23 @@ a:hover > .link-arrow {
 
 /* ---------- Hero ---------- */
 
+.hero-stack {
+  position: relative;
+}
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .hero-stack > .hero {
+    position: sticky;
+    top: var(--hero-stick, 0px);
+  }
+}
+.hero-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: #05070a;
+  pointer-events: none;
+}
+
 .hero {
   position: relative;
   isolation: isolate;
@@ -564,6 +586,13 @@ a:hover > .link-arrow {
     opacity: 0.55;
     transform: scale(0.92);
   }
+}
+.portrait-reveal {
+  position: absolute;
+  inset: 0;
+}
+.portrait-reveal.is-revealed {
+  clip-path: none !important;
 }
 .portrait .tilted-card-figure {
   margin: 0;
@@ -665,6 +694,15 @@ a:hover > .link-arrow {
 }
 
 /* ---------- About ---------- */
+
+.about {
+  z-index: 2;
+  padding-top: clamp(80px, 9vw, 128px);
+  border-top: 1px solid var(--line-strong);
+  border-radius: 40px 40px 0 0;
+  background: var(--bg);
+  box-shadow: 0 -40px 100px -30px rgba(0, 0, 0, 0.75);
+}
 
 .about-statement {
   max-width: 22em;
@@ -830,6 +868,18 @@ a:hover > .link-arrow {
     border-color 0.4s var(--ease),
     color 0.4s var(--ease),
     transform 0.6s var(--ease);
+}
+/* Lift with `top`: MagicBento's GSAP magnetism sets transform and resets `translate` inline. */
+.service-card.magic-bento-card {
+  top: 0;
+  transition:
+    top 0.45s var(--ease),
+    border-color 0.3s,
+    box-shadow 0.3s ease;
+}
+.service-card.magic-bento-card:hover {
+  top: -6px;
+  border-color: var(--line-strong);
 }
 .service-card:hover .service-icon {
   border-color: var(--accent-line);
@@ -1003,6 +1053,10 @@ a:hover > .link-arrow {
 .experience-company-row h3 {
   font-size: clamp(21px, 2vw, 26px);
   letter-spacing: -0.03em;
+  transition: color 0.35s var(--ease);
+}
+.career-row summary:hover .experience-company-row h3 {
+  color: var(--terracotta);
 }
 .current-badge {
   display: inline-flex;
@@ -1115,12 +1169,15 @@ a:hover > .link-arrow {
   padding: clamp(32px, 5.5vw, 76px);
   border: 1px solid var(--line);
   border-radius: 28px;
+  box-shadow:
+    0 50px 120px -50px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
   background:
     radial-gradient(90% 120% at 0% 0%, var(--forest), transparent 60%),
     radial-gradient(70% 90% at 100% 100%, rgba(18, 24, 43, 0.9), transparent 70%),
     var(--surface);
 }
-.agency-dots {
+.agency-threads {
   position: absolute;
   inset: 0;
   z-index: -1;
@@ -1199,6 +1256,19 @@ a:hover > .link-arrow {
 
 /* ---------- Process ---------- */
 
+.process {
+  isolation: isolate;
+  overflow: hidden;
+}
+.process-waves {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 55%, #000 35%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 55%, #000 35%, transparent 100%);
+}
+
 .process-stepper.stepper {
   --stepper-pad: 10px;
   --stepper-inset: 22px;
@@ -1257,7 +1327,10 @@ a:hover > .link-arrow {
 .contact {
   isolation: isolate;
   overflow: hidden;
-  border-top: 1px solid var(--line);
+  margin: 0 clamp(8px, 2vw, 28px) clamp(8px, 2vw, 28px);
+  border: 1px solid var(--line);
+  border-radius: clamp(24px, 3vw, 40px);
+  background: var(--bg-raised);
 }
 .contact-particles {
   position: absolute;
@@ -1622,6 +1695,10 @@ a:hover > .link-arrow {
   .about-body {
     gap: 40px;
     margin-top: 48px;
+  }
+  .about {
+    margin-top: -40px;
+    border-radius: 28px 28px 0 0;
   }
   .career-axis {
     grid-template-columns: 1fr;

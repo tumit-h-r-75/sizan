@@ -17,6 +17,18 @@ import { DATA } from "@/data/profile";
 
 export const EASE = [0.22, 1, 0.36, 1] as const;
 
+export function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    const update = () => setMatches(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, [query]);
+  return matches;
+}
+
 export const NAV_ITEMS = [
   { id: "about", label: "About" },
   { id: "services", label: "Services" },
@@ -172,11 +184,20 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("");
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const reducedMotion = useReducedMotion();
   const { scrollY } = useScroll();
 
-  useMotionValueEvent(scrollY, "change", (latest) => setScrolled(latest > 24));
+  // Hide while scrolling down, show again on the way up. A jump of more than a screen comes from
+  // an anchor link, so the header stays as it is.
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const delta = latest - (scrollY.getPrevious() ?? 0);
+    setScrolled(latest > 24);
+    if (Math.abs(delta) > window.innerHeight) return;
+    if (latest < 160 || delta < -4) setHidden(false);
+    else if (delta > 4) setHidden(true);
+  });
 
   useEffect(() => {
     setScrolled(window.scrollY > 24);
@@ -226,8 +247,9 @@ export function Header() {
     <motion.header
       className={`site-header${scrolled ? " is-scrolled" : ""}${open ? " is-open" : ""}`}
       initial={reducedMotion ? false : { y: "-100%", opacity: 0 }}
-      animate={{ y: "0%", opacity: 1 }}
-      transition={{ duration: 0.9, ease: EASE, delay: 0.1 }}
+      animate={{ y: hidden && !open ? "-105%" : "0%", opacity: 1 }}
+      transition={{ duration: 0.5, ease: EASE }}
+      onFocusCapture={() => setHidden(false)}
     >
       <div className="shell header-inner">
         <a

@@ -112,13 +112,16 @@ try {
     await page.locator(".career-row").filter({ hasText: "Kiki Charity" }).locator("summary").innerText(),
     /Feb 2021 – Dec 2022 · 1 yr 11 mo/,
   );
-  assert.equal(await page.locator("#exprovia .dot-grid canvas").count(), 1);
+  assert.equal(await page.locator("#exprovia .threads-canvas").count(), 1);
+  assert.equal(await page.locator(".process-waves canvas").count(), 1);
+  assert.equal(await page.locator(".noise.noise--fixed").count(), 1);
+  assert.equal(await page.locator(".hero-actions .star-border .star-border__light").count(), 1);
   assert.equal(
     await page.locator(".portrait-badge").getAttribute("href"),
     "#contact",
   );
   assert.equal(await page.locator(".service-grid .magic-bento-card").count(), 6);
-  checkpoint("career chart, durations, company dot grid, badge, and service bento");
+  checkpoint("career chart, durations, Threads, Waves, grain, StarBorder, badge, and service bento");
 
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(100);
@@ -291,6 +294,24 @@ try {
   await animatedPage.waitForTimeout(300);
   assert.notEqual(await cueTransform(), initial);
   assert.equal(await animatedPage.locator(".hero-rays canvas").count(), 1);
+  const headerOffset = () =>
+    animatedPage
+      .locator(".site-header")
+      .evaluate((element) => element.getBoundingClientRect().top);
+  const heroTop = () =>
+    animatedPage
+      .locator(".hero")
+      .evaluate((element) => Math.round(element.getBoundingClientRect().top));
+  const pinnedAt = await heroTop();
+  await animatedPage.mouse.wheel(0, 500);
+  await animatedPage.waitForTimeout(800);
+  assert.equal(await heroTop(), pinnedAt, "Hero should stay pinned while About slides over it");
+  assert.ok((await headerOffset()) < -20, "Header should hide while scrolling down");
+  await animatedPage.mouse.wheel(0, -200);
+  await animatedPage.waitForTimeout(800);
+  assert.equal(await headerOffset(), 0, "Header should return while scrolling up");
+  await animatedPage.evaluate(() => window.scrollTo(0, 0));
+  await animatedPage.waitForTimeout(400);
   assert.equal(
     await animatedPage
       .locator(".hero-lead")

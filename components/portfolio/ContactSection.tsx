@@ -113,8 +113,8 @@ export function ContactSection({
           particleCount={260}
           particleSpread={10}
           speed={0.08}
-          particleBaseSize={110}
-          sizeRandomness={1}
+          particleBaseSize={90}
+          sizeRandomness={0.5}
           alphaParticles
         />
       </div>

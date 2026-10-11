@@ -91,8 +91,14 @@ STACK
     border glow, click ripple, magnetism. Adapt it to take the cards as a prop (the original has demo
     data hard-coded), remove its global :root variables and color-scheme, read colours from CSS
     variables, and switch effects off for reduced motion. glowColor = accent as "r, g, b".
-  * DotGrid: an interactive dot background inside the company panel (dotSize 3, gap 20, base colour
-    one step above the surface, active colour = accent, fade 0.5).
+  * Threads (WebGL2): slowly moving light threads behind the company card (colour = accent,
+    lineCount 60, speed 0.25, opacity 0.3, fade 0.5 – keep it faint so the figures stay readable).
+  * Waves: faint wavy lines behind the Process section that bend with the mouse
+    (lineColor accent at ~12% alpha, masked to fade at the edges). Fix its bugs first – see pitfalls.
+  * StarBorder: a small light travelling around the main "Let's discuss your project" button
+    (as="a", white light, radius 999, background = accent).
+  * Noise: a very light moving film grain over the whole page (fixed, opacity ~0.035, 16 fps).
+    Start low; it looks too grainy above ~0.05.
   * CountUp (motion): the company figures (suffix like "+" rendered next to it; a star after the rating).
   * Stepper: the process steps. Controlled step state; nextButtonText "Next step";
     completeButtonText "Start a conversation"; on final step scroll to #contact; theme it with the page
@@ -131,14 +137,24 @@ DESIGN
   no stat rows that repeat other sections, no giant footer slogans.
 
 PAGE STRUCTURE (section ids in brackets)
-1. Header: fixed; transparent at the top, blurred background + thin border after 24px of scroll.
+1. Header: fixed; transparent at the top, blurred background + thin border after 24px of scroll;
+   hides while scrolling down and returns while scrolling up (stays visible near the top, while the
+   menu is open, while it has keyboard focus, and after a jump of more than one screen from an
+   anchor link).
    Left: round avatar + brand name with an accent dot. Centre: pill nav (About, Services, Experience,
    Process, Contact) with a sliding active pill (motion layoutId) driven by IntersectionObserver.
    Right: "Let's talk" button and a mobile menu toggle (menu below 900px, closes on Escape, on link click
    and when the window grows past 900px).
 2. Hero [top]: LightRays background; role pill (ShinyText + pulsing dot); name in two BlurText lines;
-   hero line; buttons "Let's discuss your project" (to #contact) and "My journey" (to #experience);
-   portrait on the right with a soft breathing glow behind it; small "Scroll to explore" cue.
+   hero line; buttons "Let's discuss your project" (StarBorder, to #contact) and "My journey"
+   (to #experience); portrait on the right with a soft breathing glow behind it, revealed on load from
+   the bottom up while it settles from a slight zoom (clip-path + scale with motion); small
+   "Scroll to explore" cue. On desktop the hero is position: sticky inside a wrapper with About, so
+   the About section slides over it like a rounded card (rounded top corners, top border, upward
+   shadow); driven by motion's useScroll on the About section: hero copy fades and lifts, the portrait
+   drifts up slightly and shrinks a little, a dark shade fades in over the hero, and LightRays
+   unmounts once covered. On phones there is no pinning; the About card just overlaps the hero's
+   bottom with a negative margin. No pinning for reduced motion.
 3. About [about] (label 01): ScrollReveal statement; about paragraph next to a Skills chip list;
    then a two-column block [education]: Education list and Community & leadership list.
 4. Services [services] (label 02): heading + one sentence; MagicBento grid on 4 columns:
@@ -159,12 +175,12 @@ PAGE STRUCTURE (section ids in brackets)
    (e.g. #27ad5d); earlier roles: neutral grey. Expanded content shows each role with dates,
    duration and description plus location. Animate opening with ::details-content + interpolate-size.
    On mobile the bar track moves under the text.
-6. Company panel [exprovia or company slug]: rounded panel with a soft gradient from the photo's
-   colours and the DotGrid behind its content; company wordmark, heading, summary, optional teammate
+6. Company panel [exprovia or company slug]: rounded floating card (deep soft shadow) with a soft
+   gradient from the photo's colours and Threads behind its content; company wordmark, heading, summary, optional teammate
    link; figures list with CountUp and the source link.
-7. Process [process] (label 04): heading + one sentence; the Stepper with the 4 steps
-   (content: icon, "Step N of 4", the sentence).
-8. Contact [contact] (label 05): Particles background; heading "Big things start / with a simple /
+7. Process [process] (label 04): Waves in the background; heading + one sentence; the Stepper with
+   the 4 steps (content: icon, "Step N of 4", the sentence).
+8. Contact [contact] (label 05): a rounded card (inset from the page edges) with Particles behind; heading "Big things start / with a simple /
    hello." (last line in accent); one sentence; two GlareHover cards (WhatsApp with the number linking
    to https://wa.me/<digits>, LinkedIn); local time in the person's timezone, updated every 30s.
    Right: a project-brief form (name*, work email, business/website, service select, timeline select,
@@ -196,6 +212,13 @@ KNOWN PITFALLS (these all happened; check for them)
   creates a stacking context (isolation: isolate).
 - Particles with small sizes/counts are invisible; start from the values above.
 - Year labels and a "Today" label on the chart axis collide on phones; put "Today" in the legend.
+- React Bits Waves has three bugs: it measures its position once, so after scrolling the lines react
+  in the wrong place (measure on every pointer event); its CSS draws a stray dot from invalid
+  var(-0.5rem) rules (delete that rule); its window touchmove listener is non-passive (make it passive).
+- A sticky rule placed before the base .hero rule loses to it; give it higher specificity.
+- MagicBento's GSAP magnetism sets transform and resets `translate` inline, so lift the cards on hover
+  with `top` (they are position: relative).
+- Hover touches: service cards lift; company names in Experience turn terracotta (#e07a5f).
 - Chart tooltips on bars in the right half must anchor to the bar's right edge or they run off screen.
 - Stepper's footer buttons overflow at 320px on the last step; let the footer wrap and the next
   button grow below 600px.
@@ -209,8 +232,10 @@ VERIFY (do not skip)
   reducedMotion "reduce" for the main context) and run it against the dev server. It must check:
   one h1 with the name and the page title; every section id exists and every #anchor has a target;
   the portrait image loads; looping animations are off and content visible under reduced motion;
-  the chart has one bar per role and the right computed durations; the company DotGrid canvas and
-  the portrait badge exist; the services grid has all cards;
+  the chart has one bar per role and the right computed durations; the Threads, Waves, Noise and
+  StarBorder canvases and the portrait badge exist; the services grid has all cards; with normal
+  motion the hero stays pinned while scrolling, the header hides on scroll down and returns on
+  scroll up;
   the service button preselects the form and moves to #contact; empty submit does not open the dialog;
   a filled submit opens it with the right brief; copy works (grant clipboard permissions); the
   WhatsApp link contains the encoded brief; the LinkedIn link is right; Escape closes the dialog and
