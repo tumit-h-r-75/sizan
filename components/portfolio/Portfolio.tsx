@@ -437,64 +437,52 @@ function Services({ onDiscuss }: { onDiscuss: (service: string) => void }) {
   );
 }
 
+// Laid out like a feature card: labels in a narrow left column, the story and the company's
+// figures on the right, light threads drifting behind.
 function Exprovia() {
   return (
     <section id="exprovia" className="agency">
-      <div className="shell">
-        <Reveal className="agency-panel">
-          <div className="agency-threads" aria-hidden="true">
-            <Threads
-              color="#3ee27a"
-              accentColor="#8df5b4"
-              amplitude={1.2}
-              distance={0.3}
-              lineCount={60}
-              thickness={0.5}
-              speed={0.25}
-              opacity={0.3}
-              fade={0.5}
+      <Reveal className="agency-panel">
+        <div className="agency-threads" aria-hidden="true">
+          <Threads
+            color="#3ee27a"
+            accentColor="#8df5b4"
+            amplitude={1.5}
+            distance={0.35}
+            lineCount={70}
+            thickness={0.5}
+            speed={0.25}
+            angle={-6}
+            opacity={0.35}
+            fade={0.4}
+          />
+        </div>
+        <div className="shell agency-grid">
+          <div className="agency-side">
+            <span className="eyebrow">The team behind the conversation</span>
+            <img
+              className="agency-logo"
+              src={DATA.exprovia.logoUrl}
+              alt={`${DATA.company}, IT Solutions & Services`}
+              width={500}
+              height={147}
             />
           </div>
-          <div className="agency-copy">
-            <span className="eyebrow">The team behind the connection</span>
-            <div className="agency-wordmark">
-              <span>exprovia</span>
-              <svg viewBox="0 0 16 16" aria-hidden="true">
-                <path d="M3 2h11v11l-3.6-3.6L4.6 15.2 0.8 11.4l5.8-5.8z" />
-              </svg>
-            </div>
+          <div className="agency-main">
             <SplitHeading
               className="agency-heading"
-              lead="A conversation with me."
-              dim="A capable team behind it."
+              lead="You talk to me."
+              dim="A full team delivers."
             />
-            <p>{DATA.exprovia.summary}</p>
-            <ul className="agency-split">
-              {DATA.exprovia.split.map((part) => (
-                <li key={part.who}>
-                  <span className="agency-split-icon" aria-hidden="true">
-                    {part.who === "me" ? (
-                      <img src={DATA.avatarThumbUrl} alt="" width={40} height={40} />
-                    ) : (
-                      <Code2 size={18} strokeWidth={1.6} />
-                    )}
-                  </span>
-                  <div>
-                    <strong>{part.title}</strong>
-                    <span>{part.text}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <ExternalLink
-              href="https://www.raselmridha.tech/"
-              className="text-link"
-            >
-              Meet our Technical Project Manager
-            </ExternalLink>
+            <Reveal delay={0.1}>
+              <p>{DATA.exprovia.summary}</p>
+              <ExternalLink href={DATA.exprovia.teammate.url} className="text-link">
+                {DATA.exprovia.teammate.label}
+              </ExternalLink>
+            </Reveal>
           </div>
-          <div className="agency-proof">
-            <span className="eyebrow">Exprovia, as a company</span>
+          <span className="eyebrow agency-stats-label">{DATA.company}, as a company</span>
+          <div className="agency-figures">
             <dl className="agency-stats">
               {DATA.exprovia.stats.map((stat) => (
                 <div key={stat.label}>
@@ -503,21 +491,18 @@ function Exprovia() {
                     <CountUp to={stat.value} duration={1.6} />
                     {stat.suffix}
                     {!stat.suffix && (
-                      <Star className="rating-star" size={22} aria-hidden="true" />
+                      <Star className="rating-star" size={26} aria-hidden="true" />
                     )}
                   </dd>
                 </div>
               ))}
             </dl>
-            <ExternalLink
-              className="agency-source"
-              href="https://www.rakib.xyz/#experience"
-            >
-              Company figures · background & context
+            <ExternalLink className="agency-source" href={DATA.exprovia.source.url}>
+              {DATA.exprovia.source.label}
             </ExternalLink>
           </div>
-        </Reveal>
-      </div>
+        </div>
+      </Reveal>
     </section>
   );
 }

@@ -182,12 +182,16 @@ PAGE STRUCTURE (section ids in brackets)
    (e.g. #27ad5d); earlier roles: neutral grey. Expanded content shows each role with dates,
    duration and description plus location. Animate opening with ::details-content + interpolate-size.
    On mobile the bar track moves under the text.
-6. Company panel [exprovia or company slug]: rounded floating card (deep soft shadow) with a soft
-   gradient from the photo's colours and Threads behind its content; company wordmark, heading, a
-   one-sentence summary, a
-   "who does what" pair of small cards (the person's avatar: the business side – requirements, scope,
-   conversation; a code icon: the company's engineering – building and running the software),
-   optional teammate link; figures list with CountUp and the source link.
+6. Company card [exprovia or company slug]: a near full-width rounded floating card (inset like the
+   Contact card, deep soft shadow) with a soft gradient from the photo's colours and Threads drifting
+   behind. Inside the page shell, a two-column grid: a narrow left column with the eyebrow "The team
+   behind the conversation" and the company's logo image (put the logo file in public/images/ and its
+   path in the data), and on the right the heading "You talk to me. / A full team delivers.", a
+   summary paragraph (what the company is, plus how the person works with the production team) and
+   the optional teammate link. Second row: the eyebrow "<Company>, as a company" on the left and, on the
+   right, the figures as three columns with hairline dividers (big CountUp number, label below, a star
+   after the rating; stacked rows on phones) and a source line such as "Source: <name>, <role> at
+   <company>" linking to where the figures come from. Keep the logo, links and source in the data file.
 7. Process [process] (label 04): Waves in the background; heading + one sentence; the Stepper with
    the 4 steps (content: icon, "Step N of 4" – plus the step name on phones, where the Stepper hides
    it –, the sentence, and a "Who's involved" row of chips: You, the person with their avatar, the

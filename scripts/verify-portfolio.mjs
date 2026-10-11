@@ -129,9 +129,19 @@ try {
   );
   assert.match(await page.locator(".tz-clock .sr-only").innerText(), /^\d{2}:\d{2}$/);
   assert.match(await page.locator(".tz-note").innerText(), /^Your time: .+\. /);
-  assert.equal(await page.locator(".agency-split li").count(), 2);
+  assert.ok(
+    await page
+      .locator(".agency-logo")
+      .evaluate((image) => image.complete && image.naturalWidth > 0),
+    "Exprovia logo did not load",
+  );
+  assert.equal(await page.locator(".agency-stats > div").count(), 3);
+  assert.match(
+    await page.locator(".agency-source").innerText(),
+    /Source: Abdur Rakib, Strategic Advisor at Exprovia/,
+  );
   assert.equal(await page.locator(".form-submit.star-border").count(), 1);
-  checkpoint("career chart and figures, time-zone card, who-does-what, effects, badge, and bento");
+  checkpoint("career chart and figures, time-zone card, Exprovia card, effects, badge, and bento");
 
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(100);

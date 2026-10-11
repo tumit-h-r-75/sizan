@@ -60,9 +60,11 @@ export interface ProfileData {
   services: ServiceItem[];
   experience: ExperienceEntry[];
   exprovia: {
+    logoUrl: string;
     summary: string;
-    split: { who: Party; title: string; text: string }[];
+    teammate: { label: string; url: string };
     stats: CompanyStat[];
+    source: { label: string; url: string };
   };
   engagementSteps: EngagementStep[];
   education: EducationItem[];
@@ -184,25 +186,22 @@ export const DATA: ProfileData = {
     },
   ],
   exprovia: {
+    logoUrl: "/images/exprovia-logo.png",
     summary:
-      "Exprovia is a web development agency from Rajshahi, building and running software for clients worldwide.",
-    split: [
-      {
-        who: "me",
-        title: "Me: the business side",
-        text: "Your requirements, the scope, and the conversation.",
-      },
-      {
-        who: "team",
-        title: "Exprovia: the engineering",
-        text: "Building and running the software.",
-      },
-    ],
+      "Exprovia is a web development agency from Rajshahi, building and running software for clients worldwide. I work with clients on the business side and keep the production team up to date on what each project needs.",
+    teammate: {
+      label: "Meet our Technical Project Manager",
+      url: "https://www.raselmridha.tech/",
+    },
     stats: [
       { value: 350, suffix: "+", label: "Projects delivered" },
       { value: 20, suffix: "+", label: "Countries served" },
       { value: 4.9, label: "Rating on Fiverr and Upwork" },
     ],
+    source: {
+      label: "Source: Abdur Rakib, Strategic Advisor at Exprovia",
+      url: "https://www.rakib.xyz/#experience",
+    },
   },
   engagementSteps: [
     {
