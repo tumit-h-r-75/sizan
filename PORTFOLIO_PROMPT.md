@@ -99,7 +99,11 @@ STACK
     (as="a", white light, radius 999, background = accent).
   * Noise: a very light moving film grain over the whole page (fixed, opacity ~0.035, 16 fps).
     Start low; it looks too grainy above ~0.05.
-  * CountUp (motion): the company figures (suffix like "+" rendered next to it; a star after the rating).
+  * CountUp (motion): the company figures (suffix like "+" rendered next to it; a star after the rating)
+    and the Experience "at a glance" figures.
+  * Counter (motion): a rolling HH:MM clock in the Contact time-zone card (aria-hidden, with the
+    time in a visually hidden span). Adapt: digits jump for reduced motion.
+  * GradientText: the last line "hello." of the Contact heading (accent → mint → darker green).
   * Stepper: the process steps. Controlled step state; nextButtonText "Next step";
     completeButtonText "Start a conversation"; on final step scroll to #contact; theme it with the page
     palette through its CSS variables; accentColor = accent.
@@ -164,7 +168,10 @@ PAGE STRUCTURE (section ids in brackets)
    number, title, description, mono tags, and a "Let's talk" button whose ::after covers the whole
    card. Its aria-label is "Discuss <service>"; clicking it preselects that service in the contact
    form and scrolls to #contact.
-5. Experience [experience] (label 03): heading row like the other sections, then a career timeline
+5. Experience [experience] (label 03): heading row like the other sections, then an "at a glance" row
+   computed from the timeline data (number of organisations, number of roles, total time in roles in
+   years, and – if one company has several roles – months from the first role to the latest, labelled
+   like "Intern to Executive at <company>"), then a career timeline
    chart that is also the list. A header row has a legend (current role, earlier roles, today) and a
    year axis from the first start year to the current year. Each company is a native <details>
    (first one open) whose summary shows company, current badge, latest role, date range, computed
@@ -176,15 +183,23 @@ PAGE STRUCTURE (section ids in brackets)
    duration and description plus location. Animate opening with ::details-content + interpolate-size.
    On mobile the bar track moves under the text.
 6. Company panel [exprovia or company slug]: rounded floating card (deep soft shadow) with a soft
-   gradient from the photo's colours and Threads behind its content; company wordmark, heading, summary, optional teammate
-   link; figures list with CountUp and the source link.
+   gradient from the photo's colours and Threads behind its content; company wordmark, heading, a
+   one-sentence summary, a
+   "who does what" pair of small cards (the person's avatar: the business side – requirements, scope,
+   conversation; a code icon: the company's engineering – building and running the software),
+   optional teammate link; figures list with CountUp and the source link.
 7. Process [process] (label 04): Waves in the background; heading + one sentence; the Stepper with
-   the 4 steps (content: icon, "Step N of 4", the sentence).
+   the 4 steps (content: icon, "Step N of 4" – plus the step name on phones, where the Stepper hides
+   it –, the sentence, and a "Who's involved" row of chips: You, the person with their avatar, the
+   company team; store this per step in the data as involved: ["you", "me", "team"]).
 8. Contact [contact] (label 05): a rounded card (inset from the page edges) with Particles behind; heading "Big things start / with a simple /
-   hello." (last line in accent); one sentence; two GlareHover cards (WhatsApp with the number linking
-   to https://wa.me/<digits>, LinkedIn); local time in the person's timezone, updated every 30s.
+   hello." (last line in GradientText); one sentence; two GlareHover cards (WhatsApp with the number
+   linking to https://wa.me/<digits>, LinkedIn); a time-zone card: "Local time in <location>", the
+   UTC offset, a rolling Counter clock, and "Your time: <visitor's time>. <City> is N hours ahead of /
+   behind you." (or "You're in the same time zone."), computed with Intl and refreshed every 15s.
+   Store the IANA time zone in the data (timeZone: "Asia/Dhaka").
    Right: a project-brief form (name*, work email, business/website, service select, timeline select,
-   project* with min 10 characters). Submitting opens a <dialog> with the composed brief and three
+   project* with min 10 characters; the submit button also gets StarBorder). Submitting opens a <dialog> with the composed brief and three
    actions: "Send on WhatsApp" (wa.me link with ?text=<encoded brief>), "Copy project brief"
    (clipboard, with a status message in role="status"), "Open <name>'s LinkedIn". Escape and backdrop
    click close it and return focus to the submit button. Nothing is sent or stored by the site itself.

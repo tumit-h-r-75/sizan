@@ -25,9 +25,10 @@ import {
   Route,
   Sparkles,
   Star,
+  User,
   Users,
 } from "lucide-react";
-import { DATA } from "@/data/profile";
+import { DATA, type Party } from "@/data/profile";
 import BlurText from "@/components/react-bits/BlurText";
 import CircularText from "@/components/react-bits/CircularText";
 import CountUp from "@/components/react-bits/CountUp";
@@ -56,6 +57,14 @@ import {
 
 const serviceIcons = { Code2, Database, Globe: Globe2, Cloud, Cpu };
 const processIcons = [MessagesSquare, Route, Handshake, Users];
+const parties: Record<Party, { label: string; icon: React.ReactNode }> = {
+  you: { label: "You", icon: <User size={14} strokeWidth={1.8} /> },
+  me: {
+    label: DATA.alternateName,
+    icon: <img src={DATA.avatarThumbUrl} alt="" width={22} height={22} />,
+  },
+  team: { label: `${DATA.company} team`, icon: <Users size={14} strokeWidth={1.8} /> },
+};
 
 // Stepper theme variables, matched to the page palette.
 const stepperTheme = {
@@ -460,6 +469,23 @@ function Exprovia() {
               dim="A capable team behind it."
             />
             <p>{DATA.exprovia.summary}</p>
+            <ul className="agency-split">
+              {DATA.exprovia.split.map((part) => (
+                <li key={part.who}>
+                  <span className="agency-split-icon" aria-hidden="true">
+                    {part.who === "me" ? (
+                      <img src={DATA.avatarThumbUrl} alt="" width={40} height={40} />
+                    ) : (
+                      <Code2 size={18} strokeWidth={1.6} />
+                    )}
+                  </span>
+                  <div>
+                    <strong>{part.title}</strong>
+                    <span>{part.text}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
             <ExternalLink
               href="https://www.raselmridha.tech/"
               className="text-link"
@@ -548,8 +574,22 @@ function Process() {
                     <div>
                       <span className="process-step-count">
                         Step {index + 1} of {steps.length}
+                        <span className="process-step-name"> · {item.step}</span>
                       </span>
                       <p>{item.text}</p>
+                      <div className="process-involved">
+                        <span>Who's involved</span>
+                        <ul>
+                          {item.involved.map((party) => (
+                            <li key={party}>
+                              <span className="party-icon" aria-hidden="true">
+                                {parties[party].icon}
+                              </span>
+                              {parties[party].label}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </Step>

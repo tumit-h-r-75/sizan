@@ -4,6 +4,7 @@ import { type CSSProperties } from "react";
 import { motion } from "motion/react";
 import { ChevronDown, MapPin } from "lucide-react";
 import { DATA, type ExperienceRole } from "@/data/profile";
+import CountUp from "@/components/react-bits/CountUp";
 import { EASE, Reveal, SectionLabel, SplitHeading } from "./Chrome";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -35,6 +36,37 @@ const years = Array.from({ length: lastYear - firstYear + 1 }, (_, index) => fir
 const position = (month: number) => `${((month - domainStart) / (domainEnd - domainStart)) * 100}%`;
 const span = (role: ExperienceRole) =>
   `${((toMonth(role.end) - toMonth(role.start) + 1) / (domainEnd - domainStart)) * 100}%`;
+
+// Summary figures derived from the same timeline data.
+const lastWord = (title: string) => title.split(" ").pop() ?? title;
+const roleMonths = (role: ExperienceRole) => toMonth(role.end) - toMonth(role.start) + 1;
+const totalMonths = DATA.experience.reduce(
+  (sum, entry) => sum + entry.roles.reduce((inner, role) => inner + roleMonths(role), 0),
+  0,
+);
+const promoted = DATA.experience.find((entry) => entry.roles.length > 1);
+const glance = [
+  { value: DATA.experience.length, unit: "", label: "Organisations" },
+  {
+    value: DATA.experience.reduce((sum, entry) => sum + entry.roles.length, 0),
+    unit: "",
+    label: "Roles",
+  },
+  { value: Math.round((totalMonths / 12) * 10) / 10, unit: "yrs", label: "Time in roles" },
+  ...(promoted
+    ? [
+        {
+          value:
+            toMonth(promoted.roles[0].start) -
+            toMonth(promoted.roles[promoted.roles.length - 1].start),
+          unit: "mo",
+          label: `${lastWord(promoted.roles[promoted.roles.length - 1].title)} to ${lastWord(
+            promoted.roles[0].title,
+          )} at ${promoted.company}`,
+        },
+      ]
+    : []),
+];
 
 function Track({ roles, index }: { roles: ExperienceRole[]; index: number }) {
   // Roles are stored newest first; draw them left to right.
@@ -77,6 +109,19 @@ export function Experience() {
             </p>
           </Reveal>
         </div>
+        <Reveal>
+          <dl className="glance">
+            {glance.map((item) => (
+              <div key={item.label}>
+                <dt>{item.label}</dt>
+                <dd>
+                  <CountUp to={item.value} duration={1.4} />
+                  {item.unit && <span className="glance-unit">{item.unit}</span>}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </Reveal>
         <Reveal className="career">
           <div className="career-axis" aria-hidden="true">
             <div className="career-legend">

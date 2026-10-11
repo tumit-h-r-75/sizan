@@ -12,9 +12,12 @@ import {
 } from "lucide-react";
 import { DATA } from "@/data/profile";
 import BlurText from "@/components/react-bits/BlurText";
+import Counter from "@/components/react-bits/Counter";
 import GlareHover from "@/components/react-bits/GlareHover";
+import GradientText from "@/components/react-bits/GradientText";
 import Particles from "@/components/react-bits/Particles";
-import { ExternalLink, LocalTime, Reveal, SectionLabel } from "./Chrome";
+import StarBorder from "@/components/react-bits/StarBorder";
+import { ExternalLink, Reveal, SectionLabel } from "./Chrome";
 
 const whatsappNumber = DATA.whatsapp.replace(/\D/g, "");
 const whatsappUrl = (text?: string) =>
@@ -35,6 +38,84 @@ const channels = [
   },
 ];
 
+// Minutes ahead of UTC for a time zone at a given moment.
+function zoneOffset(date: Date, timeZone: string) {
+  const inZone = new Date(date.toLocaleString("en-US", { timeZone }));
+  const inUtc = new Date(date.toLocaleString("en-US", { timeZone: "UTC" }));
+  return Math.round((inZone.getTime() - inUtc.getTime()) / 60000);
+}
+
+function formatGap(minutes: number) {
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return [hours && `${hours} ${hours === 1 ? "hour" : "hours"}`, rest && `${rest} min`]
+    .filter(Boolean)
+    .join(" ");
+}
+
+// The person's local time on a rolling clock, next to the visitor's own time.
+function TimeZoneCard() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const interval = window.setInterval(() => setNow(new Date()), 15_000);
+    return () => window.clearInterval(interval);
+  }, []);
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: DATA.timeZone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(now);
+  const hour = Number(parts.find((part) => part.type === "hour")?.value ?? 0) % 24;
+  const minute = Number(parts.find((part) => part.type === "minute")?.value ?? 0);
+  const theirs = zoneOffset(now, DATA.timeZone);
+  const visitors = -now.getTimezoneOffset();
+  const gap = theirs - visitors;
+  const city = DATA.location.split(",")[0];
+  const offsetMinutes = Math.abs(theirs) % 60;
+  const utc = `UTC${theirs >= 0 ? "+" : "−"}${Math.floor(Math.abs(theirs) / 60)}${
+    offsetMinutes ? `:${String(offsetMinutes).padStart(2, "0")}` : ""
+  }`;
+  const yourTime = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit" }).format(now);
+  const counter = {
+    fontSize: 40,
+    padding: 4,
+    gap: 0,
+    horizontalPadding: 0,
+    places: [10, 1],
+    textColor: "var(--text)",
+    fontWeight: 500,
+    gradientHeight: 8,
+    gradientFrom: "var(--surface)",
+    gradientTo: "transparent",
+  } as const;
+  return (
+    <div className="tz-card">
+      <div className="tz-head">
+        <span className="pulse-dot" aria-hidden="true" />
+        Local time in {DATA.location}
+        <span className="tz-zone">{utc}</span>
+      </div>
+      <div className="tz-clock">
+        <span className="sr-only">
+          {String(hour).padStart(2, "0")}:{String(minute).padStart(2, "0")}
+        </span>
+        <span className="tz-digits" aria-hidden="true">
+          <Counter value={hour} {...counter} places={[10, 1]} />
+          <span className="tz-colon">:</span>
+          <Counter value={minute} {...counter} places={[10, 1]} />
+        </span>
+      </div>
+      <p className="tz-note">
+        Your time: {yourTime}.{" "}
+        {gap === 0
+          ? "You're in the same time zone."
+          : `${city} is ${formatGap(Math.abs(gap))} ${gap > 0 ? "ahead of" : "behind"} you.`}
+      </p>
+    </div>
+  );
+}
+
 export function ContactSection({
   service,
   onServiceChange,
@@ -47,7 +128,7 @@ export function ContactSection({
     "idle",
   );
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const submitRef = useRef<HTMLButtonElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (brief && !dialogRef.current?.open) dialogRef.current?.showModal();
@@ -102,7 +183,7 @@ export function ContactSection({
   const closeDialog = () => {
     dialogRef.current?.close();
     setBrief("");
-    submitRef.current?.focus();
+    formRef.current?.querySelector<HTMLButtonElement>("button[type=submit]")?.focus();
   };
 
   return (
@@ -130,13 +211,15 @@ export function ContactSection({
                 direction="bottom"
                 initialDelay={0.15}
               />{" "}
-              <BlurText
-                className="accent"
-                text="hello."
-                delay={80}
-                direction="bottom"
-                initialDelay={0.3}
-              />
+              <span className="contact-hello">
+                <GradientText
+                  colors={["#3ee27a", "#b7f5cf", "#27ad5d"]}
+                  animationSpeed={6}
+                  glow={0.25}
+                >
+                  hello.
+                </GradientText>
+              </span>
             </h2>
             <Reveal delay={0.15}>
               <p>
@@ -182,7 +265,7 @@ export function ContactSection({
               ))}
             </Reveal>
             <Reveal delay={0.25}>
-              <LocalTime />
+              <TimeZoneCard />
             </Reveal>
           </div>
           <Reveal className="brief-panel" delay={0.1}>
@@ -194,7 +277,7 @@ export function ContactSection({
             <p className="form-intro">
               Create a brief, then send it to me on WhatsApp or LinkedIn.
             </p>
-            <form onSubmit={createBrief}>
+            <form ref={formRef} onSubmit={createBrief}>
               <div className="form-row">
                 <label>
                   Your name <span className="required">*</span>
@@ -266,14 +349,21 @@ export function ContactSection({
                   onInput={(event) => event.currentTarget.setCustomValidity("")}
                 />
               </label>
-              <button
-                ref={submitRef}
+              <StarBorder
                 type="submit"
                 className="button button-primary form-submit"
+                color="#ffffff"
+                trailColor="#c9ffdc"
+                radius={999}
+                duration={6}
+                glow={0.7}
+                backgroundColor="var(--accent)"
+                textColor="var(--accent-ink)"
+                borderColor="rgba(4, 20, 10, 0.18)"
               >
                 Prepare my project brief{" "}
                 <ArrowUpRight size={18} aria-hidden="true" />
-              </button>
+              </StarBorder>
               <span className="form-note">
                 Your brief stays on your device until you send it.
               </span>

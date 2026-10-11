@@ -26,9 +26,12 @@ export interface ServiceItem {
   icon: "Code2" | "Database" | "Globe" | "Cloud" | "Cpu";
 }
 
+export type Party = "you" | "me" | "team";
+
 export interface EngagementStep {
   step: string;
   text: string;
+  involved: Party[];
 }
 
 export interface EducationItem {
@@ -49,6 +52,7 @@ export interface ProfileData {
   role: string;
   company: string;
   location: string;
+  timeZone: string;
   avatarUrl: string;
   avatarThumbUrl: string;
   intro: string;
@@ -57,6 +61,7 @@ export interface ProfileData {
   experience: ExperienceEntry[];
   exprovia: {
     summary: string;
+    split: { who: Party; title: string; text: string }[];
     stats: CompanyStat[];
   };
   engagementSteps: EngagementStep[];
@@ -76,6 +81,7 @@ export const DATA: ProfileData = {
   role: "Business Development Executive",
   company: "Exprovia",
   location: "Rajshahi, Bangladesh",
+  timeZone: "Asia/Dhaka",
   avatarUrl: "/images/sizan-portrait.webp",
   avatarThumbUrl: "/images/sizan-avatar.webp",
   intro:
@@ -179,7 +185,19 @@ export const DATA: ProfileData = {
   ],
   exprovia: {
     summary:
-      "Exprovia is a web development agency from Rajshahi, building and running software for clients worldwide. I work on the business side, connecting your requirements with the team's engineering capabilities.",
+      "Exprovia is a web development agency from Rajshahi, building and running software for clients worldwide.",
+    split: [
+      {
+        who: "me",
+        title: "Me: the business side",
+        text: "Your requirements, the scope, and the conversation.",
+      },
+      {
+        who: "team",
+        title: "Exprovia: the engineering",
+        text: "Building and running the software.",
+      },
+    ],
     stats: [
       { value: 350, suffix: "+", label: "Projects delivered" },
       { value: 20, suffix: "+", label: "Countries served" },
@@ -190,18 +208,22 @@ export const DATA: ProfileData = {
     {
       step: "Discovery call",
       text: "We discuss your goals, timeline, and budget, so the project starts with a clear direction.",
+      involved: ["you", "me"],
     },
     {
       step: "Clear proposal",
       text: "You receive a written scope and estimate you can review before making a decision.",
+      involved: ["me", "you"],
     },
     {
       step: "Kickoff",
       text: "I introduce you to the Exprovia team assigned to your project.",
+      involved: ["you", "me", "team"],
     },
     {
       step: "Ongoing contact",
       text: "I stay your point of contact through delivery.",
+      involved: ["you", "me", "team"],
     },
   ],
   education: [

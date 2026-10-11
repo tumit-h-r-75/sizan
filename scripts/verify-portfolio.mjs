@@ -121,7 +121,17 @@ try {
     "#contact",
   );
   assert.equal(await page.locator(".service-grid .magic-bento-card").count(), 6);
-  checkpoint("career chart, durations, Threads, Waves, grain, StarBorder, badge, and service bento");
+  assert.deepEqual(
+    await page.locator(".glance dd").evaluateAll((items) =>
+      items.map((item) => item.textContent.replace(/\s+/g, "")),
+    ),
+    ["4", "5", "4yrs", "4mo"],
+  );
+  assert.match(await page.locator(".tz-clock .sr-only").innerText(), /^\d{2}:\d{2}$/);
+  assert.match(await page.locator(".tz-note").innerText(), /^Your time: .+\. /);
+  assert.equal(await page.locator(".agency-split li").count(), 2);
+  assert.equal(await page.locator(".form-submit.star-border").count(), 1);
+  checkpoint("career chart and figures, time-zone card, who-does-what, effects, badge, and bento");
 
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(100);
@@ -210,6 +220,7 @@ try {
   const activePane = stepper.locator(".stepper__pane:not(.stepper__pane--leaving)");
   await stepper.scrollIntoViewIfNeeded();
   assert.match(await activePane.innerText(), /goals, timeline, and budget/);
+  assert.match(await activePane.innerText(), /Who's involved/i);
   await stepper.getByRole("button", { name: "Next step" }).click();
   assert.match(await activePane.innerText(), /written scope and estimate/);
   assert.equal(
